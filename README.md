@@ -59,17 +59,18 @@ sudo apt-get install python3-pyaudio
 
 Save the Script: Save the following script as script.py:
 
-```php
+```py
 import speech_recognition as sr
 import pyttsx3
+import sys
 
-def transcribe_speech():
+def transcribe_speech(language='en-US'):
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         print("Speak now...")
         audio = recognizer.listen(source)
         try:
-            text = recognizer.recognize_google(audio)
+            text = recognizer.recognize_google(audio, language=language)
             print(f"You said: {text}")
             return text
         except sr.UnknownValueError:
@@ -77,26 +78,39 @@ def transcribe_speech():
         except sr.RequestError as e:
             print(f"Could not request results from Google Speech Recognition service; {e}")
 
-def speak_text(text):
+def speak_text(text, language='en'):
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
+
     for voice in voices:
-        if voice.id == 0:
+        if language in voice.languages:
             engine.setProperty('voice', voice.id)
             break
-            
+
     engine.say(text)
     engine.runAndWait()
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        language = sys.argv[1]
+    else:
+        language = 'en-US'
+
+    print(language)
     while True:
-        text = transcribe_speech()
+        text = transcribe_speech(language=language)
         if text:
-        speak_text(text)
+            speak_text(text, language=language)
 ```
 
 Run the Script: Open a terminal or command prompt, navigate to the directory where transcribe.py is saved, and run:
 
 ```sh
-python script.py
+python script.py 
+```
+
+Or run the Script with a specific language:
+
+```sh
+python script.py nl-NL
 ```
